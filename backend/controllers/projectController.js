@@ -48,7 +48,7 @@ exports.createProj =
         return res.status(400).json({ success: false, msg: "Missing required fields" });
       }
 
-      const project = await projectModel.create({
+      const project = await projectModel.create({ 
         name,
         projLanguage,
         createdBy: userId,
@@ -236,9 +236,34 @@ exports.editProject =
       }),
     });
 
-    const data = await glotRes.json();
-    console.log("Glot response:", JSON.stringify(data));
-    res.status(200).json({ success: true, data });
+    const responseText = await glotRes.text();
+
+    console.log("Glot status:", glotRes.status);
+    console.log("Glot response:", responseText);
+
+    if (!glotRes.ok) {
+      return res.status(glotRes.status).json({
+        success: false,
+        msg: `Glot API error: ${responseText}`,
+      });
+    }
+
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (parseError) {
+      return res.status(500).json({
+        success: false,
+        msg: `Glot returned invalid JSON: ${responseText}`,
+      });
+    }
+
+    console.log("Glot JSON response:", data);
+
+    return res.status(200).json({
+      success: true,
+      data,
+    });    
   } catch (err) {
     res.status(500).json({ success: false, msg: err.message });
   }
