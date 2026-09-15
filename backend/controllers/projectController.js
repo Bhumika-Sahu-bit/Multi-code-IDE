@@ -225,7 +225,7 @@ exports.editProject =
       return res.status(400).json({ success: false, msg: "Unsupported language" });
     }
 
-    const glotRes = await fetch(`https://glot.io/api/run/${language}/latest`, {
+    const glotRes = await fetch(`https://run.glot.io/languages/${language}/latest`, {
       method: "POST",
       headers: { "Content-Type": "application/json" ,
         "Authorization": `Token ${process.env.GLOT_TOKEN}`, 
