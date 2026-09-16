@@ -211,54 +211,54 @@ exports.editProject =
   exports.runCode = async (req, res) => {
   try {
     const { language, code } = req.body;
-     const lang = String(language || "").toLowerCase().trim(); // ✅ normalize
+    const lang = String(language || "").toLowerCase().trim();
 
-    const filenameMap = {
-      python:     "main.py",
-      javascript: "main.js",
-      c:          "main.c",
-      cpp:        "main.cpp",
-      java:       "Main.java",
-      bash:       "main.sh",
+    const languageMap = {
+      python:     { language: "python3",  versionIndex: "4" },
+      javascript: { language: "nodejs",   versionIndex: "4" },
+      c:          { language: "c",        versionIndex: "5" },
+      cpp:        { language: "cpp17",    versionIndex: "1" },
+      java:       { language: "java",     versionIndex: "4" },
+      bash:       { language: "bash",     versionIndex: "0" },
+      go:         { language: "go",       versionIndex: "4" },
     };
 
-    const filename = filenameMap[lang];
-    if (!filename) {
-      return res.status(400).json({ success: false, msg: "Unsupported language" });
+    const config = languageMap[lang];
+    if (!config) {
+      return res.status(400).json({ success: false, msg: `Unsupported language: "${language}"` });
     }
 
-    console.log("🔵 Calling glot.io for:", lang);
-
-    const glotRes = await fetch(`https://run.glot.io/languages/${lang}/latest`, {
+    const jdoodleRes = await fetch("https://api.jdoodle.com/v1/execute", {
       method: "POST",
-      headers: { "Content-Type": "application/json" ,
-        "Authorization": `Token ${process.env.GLOT_TOKEN}`, 
-      },
-      
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        files: [{ name: filename, content: code }],
+        clientId: process.env.JDOODLE_CLIENT_ID,
+        clientSecret: process.env.JDOODLE_CLIENT_SECRET,
+        script: code,
+        language: config.language,
+        versionIndex: config.versionIndex,
       }),
     });
 
-    const responseText = await glotRes.text();
+    const responseText = await jdoodleRes.text();
 
-    if (!glotRes.ok) {
-      return res.status(glotRes.status).json({
-        success: false,
-        msg: `Glot API error: ${responseText}`,
-      });
+    if (!jdoodleRes.ok) {
+      return res.status(jdoodleRes.status).json({ success: false, msg: `JDoodle API error: ${responseText}` });
     }
 
-      const data = JSON.parse(responseText);
-    res.status(200).json({ success: true, data });
-  } catch (err) {
-     console.error("🔴 Full error:", err);
-    console.error("🔴 Cause:", err.cause); // 👈 ye sabse important hai
-    res.status(500).json({
-      success: false,
-      msg: err.message,
-      cause: err.cause?.message || err.cause?.code || "unknown",
+    const data = JSON.parse(responseText);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        stdout: data.statusCode === 200 ? data.output : "",
+        stderr: data.statusCode !== 200 ? data.output : "",
+        error: data.statusCode !== 200 ? "Execution error" : "",
+      },
     });
+  } catch (err) {
+    console.error("🔴 Full error:", err);
+    res.status(500).json({ success: false, msg: err.message });
   }
 };
 
