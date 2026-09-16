@@ -227,6 +227,8 @@ exports.editProject =
       return res.status(400).json({ success: false, msg: "Unsupported language" });
     }
 
+    console.log("🔵 Calling glot.io for:", lang);
+
     const glotRes = await fetch(`https://run.glot.io/languages/${lang}/latest`, {
       method: "POST",
       headers: { "Content-Type": "application/json" ,
@@ -250,7 +252,13 @@ exports.editProject =
       const data = JSON.parse(responseText);
     res.status(200).json({ success: true, data });
   } catch (err) {
-    res.status(500).json({ success: false, msg: err.message });
+     console.error("🔴 Full error:", err);
+    console.error("🔴 Cause:", err.cause); // 👈 ye sabse important hai
+    res.status(500).json({
+      success: false,
+      msg: err.message,
+      cause: err.cause?.message || err.cause?.code || "unknown",
+    });
   }
 };
 
