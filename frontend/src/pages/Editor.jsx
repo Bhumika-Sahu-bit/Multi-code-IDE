@@ -504,7 +504,7 @@ const Editor = () => {
                 <div>
                   Language: <span className="text-white/90">{data?.projLanguage ?? "—"}</span>
                 </div>
-                <div>
+                {/* <div>
                   Powered by:{" "}
                   <a
                     href="https://glot.io"
@@ -514,7 +514,7 @@ const Editor = () => {
                   >
                     Glot.io
                   </a>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

@@ -262,39 +262,3 @@ exports.editProject =
   }
 };
 
-// exports.runCode = async (req, res) => {
-//   try {
-//     const { language, code } = req.body;
-
-//     const filenameMap = {
-//       python:     "main.py",
-//       javascript: "main.js",
-//       c:          "main.c",
-//       cpp:        "main.cpp",
-//       java:       "Main.java",
-//       bash:       "main.sh",
-//     };
-
-//     const filename = filenameMap[language];
-//     if (!filename) {
-//       return res.status(400).json({ success: false, msg: "Unsupported language" });
-//     }
-
-//     const glotRes = await fetch(`https://glot.io/api/run/${language}/latest`, {
-//       method: "POST",
-//       headers: { "Content-Type": "application/json" ,
-//         "Authorization": `Token ${process.env.GLOT_TOKEN}`, 
-//       },
-      
-//       body: JSON.stringify({
-//         files: [{ name: filename, content: code }],
-//       }),
-//     });
-
-//     const data = await glotRes.json();
-//     console.log("Glot response:", JSON.stringify(data));
-//     res.status(200).json({ success: true, data });
-//   } catch (err) {
-//     res.status(500).json({ success: false, msg: err.message });
-//   }
-// };
